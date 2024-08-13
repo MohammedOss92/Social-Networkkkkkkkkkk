@@ -1,6 +1,8 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
+
 <html lang="en">
+
 
 <head>
     <title>{% block title %}Social Network{% endblock %}</title>
@@ -37,9 +39,9 @@
                         {% csrf_token %}
                         <textarea name="text" autofocus placeholder="What's happening?" rows="5"
                             id="post-text"></textarea>
-                        <input type="hidden" id="img-change" value="false"></input>
-                        <div id='img-div'>
-                            <button id="del-img" type='button'>
+                        <input type="hidden" id="img-change" value="false">
+                        <div id="img-div">
+                            <button id="del-img" type="button">
                                 <svg width="1.55em" height="1.55em" viewBox="0 0 24 24"
                                     class="r-jwli3a r-4qtqp9 r-yyyyoo r-1q142lx r-50lct3 r-dnmrzs r-bnwqim r-1plcrui r-lrvibr r-1srniue"
                                     fill="#fff">
@@ -50,12 +52,12 @@
                                     </g>
                                 </svg>
                             </button>
-                            <img src="{% static 'network/Images/spinner.gif' %}" id='spinner' height="70px">
+                            <img src="{% static 'network/Images/spinner.gif' %}" id="spinner" height="70px">
                         </div>
                         <hr>
                         <div class="form-action-btns">
                             <div>
-                                <input name='picture' accept="image/jpeg,image/png,image/webp,image/gif" type="file"
+                                <input name="picture" accept="image/jpeg,image/png,image/webp,image/gif" type="file"
                                     style="display: none;" id="insert-img" data-focusable="true">
                                 <label for="insert-img" class="icon-btn form-icon-btn">
                                     <svg width="1.1em" height="1.4em" viewBox="0 0 16 16" class="bi bi-image"
@@ -242,7 +244,7 @@
                     </li>
                     {% endif %}
                     {% if user.is_authenticated %}
-                    <input type="hidden" id="user_is_authenticated" value="True" data-username='{{user.username}}'>
+                    <input type="hidden" id="user_is_authenticated" value="True" data-username="{{user.username}}">
                     {% else %}
                     <input type="hidden" id="user_is_authenticated" value="False">
                     {% endif %}
@@ -253,7 +255,7 @@
         {% block body %}
         {% endblock %}
 
-        <div class="right-div">
+        <!-- <div class="right-div">
             <nav class="head">
                 <form action="#">
                     <div class="search-div">
@@ -269,67 +271,65 @@
                         <input type="text" name="query" id="search-box" placeholder="Search Network">
                     </div>
                 </form>
-            </nav>
-            <div class='right-div-content'>
-                <div class="space" style="background-color: white;"></div>
-                {% if user.is_authenticated %}
-                <div class="suggestion-box">
-                    <div class="suggestion-header">
-                        You might know
+            </nav> -->
+        <div class="right-div-content">
+            <div class="space" style="background-color: white;"></div>
+            {% if user.is_authenticated %}
+            <div class="suggestion-box">
+                <div class="suggestion-header">
+                    You might know
+                </div>
+                {% for suggestion in suggestions %}
+                <div class="suggestion-user">
+                    <div>
+                        <a href="{% url 'profile' suggestion.username %}">
+                            <div class="small-profilepic"
+                                style="background-image: url(/media/{{suggestion.profile_pic}})"></div>
+                        </a>
                     </div>
-                    {% for suggestion in suggestions %}
-                    <div class="suggestion-user">
-                        <div>
-                            <a href="{% url 'profile' suggestion.username %}">
-                                <div class="small-profilepic"
-                                    style="background-image: url(/media/{{suggestion.profile_pic}})"></div>
-                            </a>
-                        </div>
-                        <div class="user-details">
-                            <a href="{% url 'profile' suggestion.username %}">
-                                <div id="user-name">
+                    <div class="user-details">
+                        <a href="{% url 'profile' suggestion.username %}">
+                            <div id="user-name">
 
-                                    <strong>
-                                        {{suggestion.first_name}} {{suggestion.last_name}}
-                                    </strong>
-                                </div>
-                                <div class="grey">@{{suggestion.username}}</div>
-                            </a>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline-success" type="button"
-                                onclick="follow_user(this,'{{suggestion.username}}','suggestion')">Follow</button>
-                        </div>
+                                <strong>
+                                    {{suggestion.first_name}} {{suggestion.last_name}}
+                                </strong>
+                            </div>
+                            <div class="grey">@{{suggestion.username}}</div>
+                        </a>
                     </div>
-                    {% empty %}
-                    <div style="text-align: center; border-bottom: .5px solid #e6ecf0; padding: 10px 15px;">
-                        <span class="grey" style="font-size: .9em;">No suggestions available.</span>
-                    </div>
-                    {% endfor %}
-                    <div class="suggestion-footer">
-                        <!-- <a href="#">Show more</a> -->
-                        <a href="{% url 'more_suggestions' %}?page=2">Show more</a>
-
+                    <div>
+                        <button class="btn btn-outline-success" type="button"
+                            onclick="follow_user(this,'{{suggestion.username}}','suggestion')">Follow</button>
                     </div>
                 </div>
-                {% else %}
-                <div class="guest-box">
-                    <center>
-                        <div class="guest-header">
-                            <h5>New to Network?</h5>
-                        </div>
-                        <div class="grey guest-content">
-                            Sign up now to get connected with people you know.
-                        </div>
-                        <div class="guest-btn">
-                            <button class="btn btn-success btn-block" type="button" onclick="goto_register()">Sign
-                                Up</button>
-                        </div>
-                    </center>
-                </div>
-                {% endif %}
+                {% empty %}
+                <!-- <div style="text-align: center; border-bottom: .5px solid #e6ecf0; padding: 10px 15px;">
+                    <span class="grey" style="font-size: .9em;">No suggestions available.</span>
+                </div> -->
+                {% endfor %}
+                <!-- <div class="suggestion-footer">
+                    <a href="#">Show more</a>
+                </div> -->
             </div>
+            {% else %}
+            <div class="guest-box">
+                <center>
+                    <div class="guest-header">
+                        <h5>New to Network?</h5>
+                    </div>
+                    <div class="grey guest-content">
+                        Sign up now to get connected with people you know.
+                    </div>
+                    <div class="guest-btn">
+                        <button class="btn btn-success btn-block" type="button" onclick="goto_register()">Sign
+                            Up</button>
+                    </div>
+                </center>
+            </div>
+            {% endif %}
         </div>
+    </div>
     </div>
 
 </body>

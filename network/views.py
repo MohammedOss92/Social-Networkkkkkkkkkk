@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 import json
+from django.shortcuts import render, get_object_or_404
+from .forms import EditProfileForm  # تأكد من استيراد النموذج المناسب
 
 from .models import *
 
@@ -128,6 +130,25 @@ def profile(request, username):
         "follower_count": follower_count,
         "following_count": following_count
     })
+
+
+@login_required
+def edit_profile(request, username):
+    user = get_object_or_404(User, username=username)
+
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', username=user.username)
+        else:
+            print("Form is invalid.")
+            print(form.errors)
+    else:
+        form = EditProfileForm(instance=user)
+
+    return render(request, 'network/edit_profile.html', {'form': form, 'user': user})
+
 
 def following(request):
     if request.user.is_authenticated:
@@ -369,3 +390,30 @@ def delete_post(request, post_id):
             return HttpResponse("Method must be 'PUT'")
     else:
         return HttpResponseRedirect(reverse('login'))
+    
+
+
+@login_required
+def more_suggestions(request):
+    if request.user.is_authenticated:
+        followings = Follower.objects.filter(followers=request.user).values_list('user', flat=True)
+        # المستخدمين الذين لم تقم بعمل متابعة لهم
+        suggestions = User.objects.exclude(pk__in=followings).exclude(username=request.user.username).order_by("?")[:6]
+        return render(request, "network/more_suggestions.html", {
+            "suggestions": suggestions
+        })
+    else:
+        return HttpResponseRedirect(reverse('login'))
+    
+def followinglist(request):
+    if request.user.is_authenticated:
+        # جلب أسماء المستخدمين وصور الملف الشخصي
+        following_users = Follower.objects.filter(followers=request.user).select_related('user').values('user__username', 'user__profile_pic')
+
+        return render(request, "network/following.html", {
+            "following_users": following_users,
+        })
+    else:
+        return HttpResponseRedirect(reverse('login'))
+
+

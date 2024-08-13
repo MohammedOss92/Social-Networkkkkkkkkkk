@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends 'network/index2.html' %}
+
+{% load static %}
+{% block script %}
+<script type="text/javascript" src="{% static 'network/edit_profile.js' %}"></script>
+{% endblock %}
+
+{% block profile %}
+<div class="container mt-4">
+    <h2>Edit Profile</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {{ form.username.errors }}
+        {{ form.email.errors }}
+
+        <div class="form-group">
+            <div class="form-row align-items-center">
+                <div class="col-sm-6 my-1">
+                    <input class="form-control inp fname" type="text" name="first_name" placeholder="First Name *"
+                        value="{{ form.first_name.value|default:user.first_name }}" autocomplete="off">
+                    <span class="star small">{{ form.first_name.errors }}</span>
+                </div>
+                <div class="col-sm-6 my-1">
+                    <input class="form-control inp lname" type="text" name="last_name" placeholder="Last Name *"
+                        value="{{ form.last_name.value|default:user.last_name }}" autocomplete="off">
+                    <span class="star small">{{ form.last_name.errors }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input class="form-control inp usrname" type="text" name="username" placeholder="User Name *"
+                value="{{ form.username.value|default:user.username }}" autocomplete="off">
+            <span class="star small">{{ form.username.errors }}</span>
+        </div>
+        <div class="form-group">
+            <input class="form-control inp email" type="email" name="email" placeholder="Email *"
+                value="{{ form.email.value|default:user.email }}" autocomplete="off">
+            <span class="star small">{{ form.email.errors }}</span>
+        </div>
+
+        <div class="form-group">
+            <div class="custom-file">
+                <input type="file" name="profile_pic" class="form-control custom-file-input" id="profile"
+                    accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewImage('profile')">
+                <label class="custom-file-label" for="profile">اختر صورة الملف الشخصي</label>
+                <span id="profileDesc" class="star small">{{ form.profile_pic.errors }}</span>
+                <img id="profile-preview" src="{% if user.profile_pic %}{{ user.profile_pic.url }}{% endif %}"
+                    alt="Profile Picture Preview" style="max-width: 200px; margin-top: 10px;">
+                <div id="profile-file-name" class="mt-2">{{ user.profile_pic.name }}</div> <!-- عرض اسم الصورة -->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="custom-file">
+                <input type="file" name="cover" class="form-control custom-file-input" id="cover"
+                    accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewImage('cover')">
+                <label class="custom-file-label" for="cover">اختر صورة الغلاف</label>
+                <span class="star small">{{ form.cover.errors }}</span>
+                <img id="cover-preview" src="{% if user.cover %}{{ user.cover.url }}{% endif %}"
+                    alt="Cover Picture Preview" style="max-width: 200px; margin-top: 10px;">
+                <div id="cover-file-name" class="mt-2">{{ user.cover.name }}</div> <!-- عرض اسم الصورة -->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'index' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+<script>
+    function previewImage(inputId) {
+        var input = document.getElementById(inputId);
+        var file = input.files[0];
+        var preview = document.getElementById(inputId + '-preview');
+        var fileNameDiv = document.getElementById(inputId + '-file-name');
+
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+
+            // عرض اسم الصورة
+            fileNameDiv.textContent = file.name;
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+            fileNameDiv.textContent = '';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.custom-file-input').forEach(element => {
+            element.addEventListener('change', event => {
+                if (event.target.files[0]) {
+                    var label = event.target.nextElementSibling;
+                    if (label) {
+                        label.innerText = event.target.files[0].name;
+                    }
+                    previewImage(event.target.id);
+                } else {
+                    var label = event.target.nextElementSibling;
+                    if (label) {
+                        if (event.target.id === 'profile') {
+                            label.innerHTML = `<span style="color: #6c757d;">اختر صورة الملف الشخصي<span>`;
+                        } else if (event.target.id === 'cover') {
+                            label.innerHTML = `<span style="color: #6c757d;">اختر صورة الغلاف<span>`;
+                        }
+                    }
+                    previewImage(event.target.id);
+                }
+            });
+        });
+    });
+</script>
+
+</html>

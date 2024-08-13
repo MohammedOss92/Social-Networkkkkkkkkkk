@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "network/layout.html" %}
+
+{% load static %}
+{% block body %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>More Suggestions</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script type="text/javascript" src="{% static 'network/layout.js' %}"></script>
+
+    <script src="{% static 'js/scripts.js' %}" defer></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .search-container {
+            text-align: center;
+        }
+
+
+        .search-result {
+            display: contents;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .search-result img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .search-result a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            /* تحديد أعمدة مرنة */
+            gap: 15px;
+            /* الفجوة بين العناصر */
+            justify-content: center;
+        }
+
+        .search-result {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            /* محاذاة النصوص في الوسط */
+            background-color: #fff;
+            transition: box-shadow 0.3s ease;
+            max-width: 150px;
+            /* تحديد عرض أقصى */
+        }
+
+        .search-result img {
+            width: 100%;
+            height: 100px;
+            /* تحديد ارتفاع محدد للصورة */
+            object-fit: cover;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-info {
+            padding: 10px;
+            text-align: center;
+            /* محاذاة النصوص في الوسط */
+        }
+
+        .user-info strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            /* حجم النص */
+            color: #000;
+        }
+
+        .grey {
+            color: grey;
+            font-size: 12px;
+            /* حجم النص */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="suggestions-container">
+        {% if suggestions %}
+        <div class="suggestions-list">
+            {% for suggestion in suggestions %}
+            <div class="suggestion-user">
+                <div>
+                    <a href="{% url 'profile' suggestion.username %}">
+                        <div class="small-profilepic" style="background-image: url(/media/{{suggestion.profile_pic}})">
+                        </div>
+                    </a>
+                </div>
+                <div class="user-details">
+                    <a href="{% url 'profile' suggestion.username %}">
+                        <div id="user-name">
+
+                            <strong>
+                                {{suggestion.first_name}} {{suggestion.last_name}}
+                            </strong>
+                        </div>
+                        <div class="grey">@{{suggestion.username}}</div>
+                    </a>
+                </div>
+                <div>
+                    <button class="btn btn-outline-success" type="button"
+                        onclick="follow_user(this,'{{suggestion.username}}','suggestion')">Follow</button>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; border-bottom: .5px solid #e6ecf0; padding: 10px 15px;">
+                <span class="grey" style="font-size: .9em;">No suggestions available.</span>
+            </div>
+            {% endfor %}
+
+        </div>
+        {% else %}
+        <p>No more suggestions available.</p>
+        {% endif %}
+    </div>
+
+
+    <div class="main">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- JavaScript for follow button -->
+    <script>
+        document.querySelectorAll('.follow-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const username = this.getAttribute('data-username');
+                // Make an AJAX request to follow the user
+                fetch(`/follow/${username}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ follow: true })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.textContent = 'Following';
+                            this.disabled = true;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+    {% endblock %}
+
+    {% block right_sidebar %}
+    <!-- يمكنك تركه فارغًا أو إضافة أي محتوى تريده هنا -->
+    {% endblock %}
+
+</body>
+
+</html>
